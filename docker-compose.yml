@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  presidio-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: estonian-presidio-api
+    ports:
+      - "8000:8000"
+    environment:
+      - FLASK_ENV=production
+      - LOG_LEVEL=info
+      - HOST=0.0.0.0
+      - PORT=8000
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./config:/app/config:ro
+      - models_cache:/app/models
+      - spacy_models:/home/presidio/.local/lib/python3.9/site-packages
+    healthcheck:
+      test: ["CMD", "./healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - presidio-network
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+        reservations:
+          memory: 2G
+          cpus: '1.0'
+
+volumes:
+  models_cache:
+  spacy_models:  # Added volume for spacy models
+
+networks:
+  presidio-network:
+    driver: bridge

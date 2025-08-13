@@ -1,0 +1,95 @@
+# Complete configuration for Microsoft Presidio with spacy NLP Engine + tartuNLP/EstBERT_NER
+
+# Basic analyzer configuration
+supported_languages:
+  - xx  # multi-language support
+
+default_score_threshold: 0.5
+
+# Spacy NLP Engine Configuration
+nlp_configuration:
+  nlp_engine_name: spacy
+  models:
+    - lang_code: xx
+      model_name: xx_ent_wiki_sm  # Placeholder for multi-language model
+
+
+
+# EstBERT NER Model Configuration
+estbert_configuration:
+  model_name: "tartuNLP/EstBERT_NER"
+  supported_language: xx
+  entity_mapping:
+    # Map EstBERT Estonian labels to Presidio entities
+    LOC: LOCATION           # Locations -> Location
+    ORG: ORGANIZATION       # Organizations -> Organization
+    PER: PERSON             # Personal names -> Person
+
+# Entities to detect (used in analysis calls)
+entities_to_detect:
+  # EstBERT entities
+  - PERSON
+  - ORGANIZATION
+  - LOCATION
+  
+  # Built-in Presidio entities (language-agnostic)
+  - EMAIL_ADDRESS
+  - PHONE_NUMBER
+  - URL
+  - IP_ADDRESS
+  - IBAN_CODE
+  - DATE_TIME
+  - CRYPTO
+
+  # Custom Estonian entities
+  - CAR_NUMBER
+  - EE_PERSONAL_CODE
+  - PHONE_NUMBER
+
+# Custom Estonian recognizers (pattern-based)
+recognizers:
+  # Estonian Personal ID (Isikukood)
+  - name: EstonianPersonalCode
+    supported_language: xx
+    supported_entity: EE_PERSONAL_CODE
+    patterns:
+      - name: isikukood_pattern
+        regex: "(?:^|(?<=[.|,|;|:|\\s|!|?]))[1-6][0-9]{2}(01|02|03|04|05|06|07|08|09|10|11|12)(01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31)[0-9]{3}[0-9](?=[.|,|;|:|\\s|!|?]|$)"
+        score: 0.95
+
+  - name: EstonianCarNumber
+    supported_language: xx
+    supported_entity: CAR_NUMBER
+    patterns:
+      - name: car_number_pattern
+        regex: "(?:^|(?<=[±|.|,|;|:|\\s|!|?|\\W)|(]))([0-9]{2,3}\\s{0,1}[a-zA-Z]{3}?)(?=[.|,|;|:|\\s|!|?]|$)"
+        score: 0.85
+
+  - name: EstonianPhoneNumbers 
+    supported_language: xx
+    supported_entity: PHONE_NUMBER
+    patterns:
+      - name: phone_number_pattern
+        regex: "(?:^|(?<=[±|.|,|;|:|\\s|!|?|\\W)|(]))((\\+?\\s?359|\\+?\\s?372|\\+?\\s?79|\\+?\\s?49|\\+?\\s?46|\\+?\\s?358|\\+?\\s?44|\\+?\\s?52)\\s|\\+?\\s?372|\\+?\\s?79|\\+?\\s?49|\\+?\\s?358|\\+?\\s?44|\\+?\\s?52|\\+?\\s?46)?[5|6|7|4|8|1|0][0-9\\s-]{4,13}[0-9](?=[.|,|;|:|\\s|!|?|)|(]|$)"
+        score: 0.85
+
+# Anonymization configuration
+anonymization_config:
+  default_operators:
+    PERSON: "[ISIK]"
+    ORGANIZATION: "[ORGANISATSIOON]"
+    LOCATION: "[ASUKOHT]"
+    DATE_TIME: "[KUUPÄEV]"
+    TITLE: "[TIITEL]"
+    EVENT: "[SÜNDMUS]"
+    PRODUCT: "[TOODE]"
+    MONEY: "[RAHA]"
+    PERCENTAGE: "[PROTSENT]"
+    EMAIL_ADDRESS: "[E-POST]"
+    PHONE_NUMBER: "[TELEFON]"
+    URL: "[VEEBILEHT]"
+    IP_ADDRESS: "[IP-AADRESS]"
+    IBAN_CODE: "[PANGAKONTO]"
+    EE_PERSONAL_CODE: "[ISIKUKOOD]"
+    CAR_NUMBER: "[AUTONUMBER]"
+    PHONE_NUMBER: "[TELEFON]"
